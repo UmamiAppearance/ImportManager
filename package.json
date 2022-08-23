@@ -8,6 +8,8 @@
   },
   "type": "module",
   "scripts": {
+    "lint": "eslint ./src/*",
+    "lint:fix": "eslint ./src/* --fix",
     "test": "ava"
   },
   "repository": {
