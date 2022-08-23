@@ -1,7 +1,7 @@
 # Import Manager
 
 [![License](https://img.shields.io/github/license/UmamiAppearance/ImportManager?color=009911&style=for-the-badge)](./LICENSE)
-[![npm](https://img.shields.io/npm/v/ImportManager?color=009911&style=for-the-badge)](https://www.npmjs.com/package/import-manager)
+[![npm](https://img.shields.io/npm/v/import-manager?color=009911&style=for-the-badge)](https://www.npmjs.com/package/import-manager)
 
 This is the outsourced home of the underlying module for the rollup plugin: [rollup-plugin-import-manager](https://github.com/UmamiAppearance/rollup-plugin-import-manager). To have the ability to analyze and modify JavaScript source code for import statements (cjs/es6/dynamic) without having to deal with rollup or rollup dependencies, the source code for the **ImportManager** class itself has its own repository. It can be downloaded and used independently from the rollup plugin and or a building process.
 
