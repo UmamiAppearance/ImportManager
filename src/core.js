@@ -824,4 +824,4 @@ const simpleHash = (input) => {
 };
 
 export default ImportManager;
-export { simpleHash };
+export { DebuggingError, MatchError, simpleHash };
