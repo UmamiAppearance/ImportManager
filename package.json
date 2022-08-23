@@ -1,0 +1,43 @@
+{
+  "name": "import-manager",
+  "version": "0.1.0",
+  "description": "A class to analyze and manipulate JavaScript import statements from source code files.",
+  "main": "./src/core.js",
+  "exports": {
+    "import": "./src/core.js"
+  },
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/UmamiAppearance/ImportManager.git"
+  },
+  "keywords": [
+    "Source",
+    "Code",
+    "ES6",
+    "CJS",
+    "Dynamic",
+    "Imports",
+    "Import",
+    "Analyze",
+    "Manipulate"
+  ],
+  "author": "UmamiAppearance",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/UmamiAppearance/ImportManager/issues"
+  },
+  "homepage": "https://github.com/UmamiAppearance/ImportManager#readme",
+  "devDependencies": {
+    "eslint": "^8.22.0"
+  },
+  "dependencies": {
+    "acorn": "^8.8.0",
+    "acorn-walk": "^8.2.0",
+    "colorette": "^2.0.19",
+    "magic-string": "^0.26.2"
+  }
+}
