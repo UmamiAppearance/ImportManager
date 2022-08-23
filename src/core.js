@@ -1,3 +1,17 @@
+/**
+ * [ImportManager]{@link https://github.com/UmamiAppearance/ImportManager}
+ *
+ * The core class for the rollup-plugin-import-manager,
+ * which can never the less be used standalone.  
+ * It handles code analysis, creates units from import
+ * statements, attaches methods to the units and more.
+ * 
+ * @version 0.1.0
+ * @author UmamiAppearance [mail@umamiappearance.eu]
+ * @license MIT
+ * @see https://github.com/UmamiAppearance/rollup-plugin-import-manager
+ */
+
 import ImportManagerUnitMethods from "./unit-methods.js";
 import { DebuggingError, MatchError } from "./errors.js";
 import { parse } from "acorn";
@@ -5,12 +19,7 @@ import { full as fullWalk } from "acorn-walk";
 import MagicString from "magic-string";
 import { bold, yellow } from "colorette";
 
-/**
- * The plugins core class. It handles the 
- * code analysis, creates units from import
- * statements, attaches methods to the units
- * and more.
- */
+
 class ImportManager {
 
     /**
