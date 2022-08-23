@@ -1,6 +1,6 @@
 {
   "name": "import-manager",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A class to analyze and manipulate JavaScript import statements from source code files.",
   "main": "./src/core.js",
   "exports": {
