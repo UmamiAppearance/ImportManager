@@ -16,12 +16,20 @@ class ImportManager {
     /**
      * The constructor creates a class import
      * object and kicks of the code analysis.
-     * @param {string} source - The unmodified source code-
-     * @param {string} filename - The filename of the input file. 
+     * @param {string} source - The unmodified source code.
+     * @param {string} filename - The path/name of the input file (used for hash generation). 
      * @param {object} [warnSpamProtection] - A Set which contains all previously printed warning hashes.
      * @param {boolean} [warnings=true] - Pass false to suppress warning messages.
      */
-    constructor(source, rollupID, warnSpamProtection=new Set(), warnings=true) {
+    constructor(source, filename, warnSpamProtection=new Set(), warnings=true) {
+
+        if (!source) {
+            source="";
+        }
+
+        if (!filename) {
+            filename = String(simpleHash(source));
+        }
 
         this.scopeMulti = 1000;
 
@@ -53,7 +61,7 @@ class ImportManager {
         this.code = new MagicString(source);
 
         this.hashList = {};
-        this.filename = rollupID.split(process.cwd()).at(1);
+        this.filename = filename.split(process.cwd()).at(1);
         this.warnSpamProtection = warnSpamProtection;
         
         this.parsedCode = parse(source, {
