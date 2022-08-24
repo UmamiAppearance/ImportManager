@@ -1,5 +1,5 @@
 import test from "ava";
-import ImportManager from "../src/core.js";
+import { ImportManager } from "../src/core.js";
 
 // NOTE: the main testing will happen at the rollup plugin
 

@@ -2,9 +2,11 @@
   "name": "import-manager",
   "version": "0.1.2",
   "description": "A class to analyze and manipulate JavaScript import statements from source code files.",
-  "main": "./src/core.js",
+  "main": "./cjs/import-manager.cjs",
+  "module": "./src/core.js",
   "exports": {
-    "import": "./src/core.js"
+    "import": "./src/core.js",
+    "require": "./cjs/import-manager.cjs"
   },
   "type": "module",
   "scripts": {
