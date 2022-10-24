@@ -37,7 +37,7 @@
   },
   "homepage": "https://github.com/UmamiAppearance/ImportManager#readme",
   "devDependencies": {
-    "ava": "^4.3.3",
+    "ava": "^5.0.1",
     "eslint": "^8.25.0",
     "rollup": "^3.2.3"
   },
