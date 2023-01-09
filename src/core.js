@@ -30,7 +30,7 @@ class ImportManager {
      * @param {object} [warnSpamProtection] - A Set which contains all previously printed warning hashes.
      * @param {boolean} [warnings=true] - Pass false to suppress warning messages.
      */
-    constructor(source, filename, warnSpamProtection=new Set(), warnings=true) {
+    constructor(source, filename, warnSpamProtection=new Set(), warnings=true, pluginInstance=null) {
 
         if (!source) {
             source="";
@@ -82,6 +82,10 @@ class ImportManager {
             this.warning = () => {
                 return;
             };
+        }
+        
+        else if (pluginInstance) {
+            this.warning = pluginInstance.warn;
         }
         
         this.analyze();
@@ -802,7 +806,7 @@ class ImportManager {
         this.warnSpamProtection.add(hash);
 
         console.warn(
-            bold(yellow(`(!) (plugin ImportManager) ${msg}`))
+            bold(yellow(`(!) (ImportManager) ${msg}`))
         );
     }
 }
