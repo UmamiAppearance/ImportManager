@@ -90,8 +90,8 @@ class ImportManager {
 
     /**
      * Analyzes the source and stores all import
-     * statements as unit objects in the class 
-     * variable "imports".
+     * statements as unit objects in the object
+     * "this.imports"
      */
     analyze() {
   

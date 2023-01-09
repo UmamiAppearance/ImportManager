@@ -30,6 +30,15 @@ import ImportManager from "import-manager
 const manager = new ImportManager(<sourceCodeAsString>, <filename>)
 ```
 
+### Methods
+
+#### Global Methods
+
+##### `analyze()`
+Analyzes the source and stores all import statements as unit objects in the object `this.imports`.
+
+#### Unit Methods
+
 ## License
 
 [MIT](https://opensource.org/licenses/MIT)
