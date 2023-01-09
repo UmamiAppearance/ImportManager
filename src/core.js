@@ -465,6 +465,7 @@ class ImportManager {
      * Selects a unit by its module name.
      * @param {string} name - Module Name. 
      * @param {string|string[]} [type] - "cjs", "dynamic", "es6" one as a string or multiple as array of strings
+     * @param {boolean} allowNull - If false the module must be found or a MatchError is thrown.
      * @returns {Object} - An explicit unit.
      */
     selectModByName(name, type, allowNull) {
@@ -550,6 +551,7 @@ class ImportManager {
      * Selects a unit by its id. Should only be used
      * for testing purposes.
      * @param {number} id - Unit id. 
+     * @param {boolean} allowNull - If false the module must be found or a MatchError is thrown.
      * @returns {Object} - An explicit unit.
      */
     selectModById(id, allowNull) {
@@ -597,7 +599,8 @@ class ImportManager {
      * All hashes for one file are stored in a list, with
      * the corresponding id. The id-match method can there-
      * fore be used, to find the unit.
-     * @param {string} hash - The hash string of the unit. 
+     * @param {string} hash - The hash string of the unit.
+     * @param {boolean} allowNull - If false the module must be found or a MatchError is thrown.
      * @returns {object} - An explicit unit.
      */
     selectModByHash(hash, allowNull) {
@@ -709,10 +712,10 @@ class ImportManager {
 
 
     /**
-     * Inserts an ES6 Import Statement to the top
+     * Inserts an Import Statement to the top
      * of the file or after the last found import
      * statement.
-     * @param {string} statement - ES6 Import Statement.
+     * @param {string} statement - Import Statement.
      * @param {number} pos - 'top' or 'bottom'
      */
     insertStatement(statement, pos, type) {
@@ -751,12 +754,12 @@ class ImportManager {
 
 
     /**
-     * Inserts an ES6 Import Statement before or after
+     * Inserts an Import Statement before or after
      * a given unit. Also an existing statement can be
      * replaced.
      * @param {Object} unit - Unit Object 
      * @param {string} mode - 'append'|'prepend'|'replace' 
-     * @param {string} statement - ES6 Import Statement. 
+     * @param {string} statement - Import Statement. 
      */
     insertAtUnit(unit, mode, statement) {
 
