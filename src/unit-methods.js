@@ -299,6 +299,8 @@ export default class ImportManagerUnitMethods {
      * @param {string} [set] - A new name or nothing for removal
      */
     setAlias(memberType, name, set) {
+        this.#ES6only();
+        
         if (memberType === "defaultMember") {
             if (name !== "*") {
                 throw new TypeError("The modification of a default member alias is only possible if the module is an asterisk. For other changes use the 'rename' method.");
