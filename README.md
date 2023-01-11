@@ -31,7 +31,7 @@ const manager = new ImportManager(<sourceCodeAsString>, <filename>)
 * _source_ - The unmodified source code.
 * _filename_ (optional) - The path/name of the input file (used for hash generation only). 
 * _warnSpamProtection_ (empty `Set()` by default) - A Set which contains all previously printed warning hashes.
-* _warnings_ (default `true`)- Pass false to suppress warning messages.
+* _warnings_ (default `true`) - Pass false to suppress warning messages.
 * _pluginInstance_ (optional) - Rollup plugin instance if used as a plugin.
 
 ### `imports` [object]
@@ -73,10 +73,10 @@ Generates an ES6 Import Statement String from the _module_ and _defaultMember_ a
 `import <defaultMembers>, { <members> } from <module>`
 
 ##### `insertStatement(statement, pos, type)`
-Inserts an import _statement_ to the  _pos_ition `top` of the file or the `bottom` which is after the last found import statement.
+Inserts an import _statement_ to the  <i>pos</i>ition `top` of the file or the `bottom` which is after the last found import statement.
 
 ##### `insertAtUnit(unit, mode, statement)`
-Inserts an import _statement_ at a given _unit_-object. There are three different _mode_s available:
+Inserts an import _statement_ at a given _unit_-object. There are three different <i>mode</i>s available:
 * `append` - _statement_ gets inserted after the given _unit_
 * `prepend` - _statement_ gets inserted before the given _unit_
 * `replace` - _statement_ replaces the given _unit_
@@ -91,7 +91,7 @@ Debugging method to stop the building process to list the complete import object
 Removes a unit from the code instance.
 
 ##### `commitChanges(unit)`
-All manipulation done via a unit method is made on the code slice of the unit. This methods finally writes it to the main code instance.
+All manipulation done via a [unit method](#unit-methods) is made on the code slice of the _unit_. This methods finally writes it to the main code instance.
 
 
 #### Unit Methods
