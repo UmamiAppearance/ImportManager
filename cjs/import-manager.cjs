@@ -22,7 +22,10 @@ class MatchError extends Error {
  */
 class DebuggingError extends Error {
     constructor(message) {
-        super(JSON.stringify(message, null, 4));
+        if (typeof message !== "string") {
+            message = JSON.stringify(message, null, 4);
+        }
+        super(message);
         this.name = "DebuggingError";
     }
 }
@@ -372,7 +375,7 @@ class ImportManagerUnitMethods {
  * It handles code analysis, creates units from import
  * statements, attaches methods to the units and more.
  * 
- * @version 0.2.0
+ * @version 0.2.1
  * @author UmamiAppearance [mail@umamiappearance.eu]
  * @license MIT
  * @see https://github.com/UmamiAppearance/rollup-plugin-import-manager
