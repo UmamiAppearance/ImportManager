@@ -15,7 +15,10 @@ class MatchError extends Error {
  */
 class DebuggingError extends Error {
     constructor(message) {
-        super(JSON.stringify(message, null, 4));
+        if (typeof message !== "string") {
+            message = JSON.stringify(message, null, 4);
+        }
+        super(message);
         this.name = "DebuggingError";
     }
 }
