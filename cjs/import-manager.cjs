@@ -326,6 +326,8 @@ class ImportManagerUnitMethods {
      * @param {string} [set] - A new name or nothing for removal
      */
     setAlias(memberType, name, set) {
+        this.#ES6only();
+        
         if (memberType === "defaultMember") {
             if (name !== "*") {
                 throw new TypeError("The modification of a default member alias is only possible if the module is an asterisk. For other changes use the 'rename' method.");
@@ -370,7 +372,7 @@ class ImportManagerUnitMethods {
  * It handles code analysis, creates units from import
  * statements, attaches methods to the units and more.
  * 
- * @version 0.1.7
+ * @version 0.2.0
  * @author UmamiAppearance [mail@umamiappearance.eu]
  * @license MIT
  * @see https://github.com/UmamiAppearance/rollup-plugin-import-manager
@@ -386,8 +388,9 @@ class ImportManager {
      * @param {string} filename - The path/name of the input file (used for hash generation). 
      * @param {object} [warnSpamProtection] - A Set which contains all previously printed warning hashes.
      * @param {boolean} [warnings=true] - Pass false to suppress warning messages.
+     * @param {object} [pluginInstance] - Rollup plugin instance if used as a plugin.
      */
-    constructor(source, filename, warnSpamProtection=new Set(), warnings=true) {
+    constructor(source, filename, warnSpamProtection=new Set(), warnings=true, pluginInstance=null) {
 
         if (!source) {
             source="";
@@ -441,14 +444,26 @@ class ImportManager {
             };
         }
         
+        else {
+            if (pluginInstance) {
+                this.warn = pluginInstance.warn;
+            } else {
+                this.warn = msg => {
+                    console.warn(
+                        colorette.bold(colorette.yellow(`ImportManager: ${msg}`))
+                    );
+                };
+            }
+        }
+        
         this.analyze();
     }
 
 
     /**
      * Analyzes the source and stores all import
-     * statements as unit objects in the class 
-     * variable "imports".
+     * statements as unit objects in the object
+     * "this.imports"
      */
     analyze() {
   
@@ -464,7 +479,7 @@ class ImportManager {
         this.parsedCode.body.forEach(node => {
 
             if (node.type === "ImportDeclaration") {
-                const unit = this.es6NodeToUnit(node);
+                const unit = this.#es6NodeToUnit(node);
                 unit.id = es6Id ++;
                 unit.index = es6Index ++;
                 unit.hash = this.#makeHash(unit);
@@ -478,7 +493,7 @@ class ImportManager {
                 acornWalk.full(node, part => {
 
                     if (part.type === "ImportExpression") {
-                        const unit = this.dynamicNodeToUnit(node, part);
+                        const unit = this.#dynamicNodeToUnit(node, part);
                         unit.id = dynamicId ++;
                         unit.index = dynamicIndex ++;
                         unit.hash = this.#makeHash(unit);
@@ -487,7 +502,7 @@ class ImportManager {
                     }
                     
                     else if (part.type === "Identifier" && part.name === "require") {
-                        const unit = this.cjsNodeToUnit(node);
+                        const unit = this.#cjsNodeToUnit(node);
                         unit.id = cjsId ++;
                         unit.index = cjsIndex ++;
                         unit.hash = this.#makeHash(unit);
@@ -565,9 +580,9 @@ class ImportManager {
      * @param {Object|string} node - acorn node or es6 import statement string. 
      * @param {number} [oStart] - For updating units the original start index has to be passed. 
      * @param {number} [oEnd] - For updating units the original end index has to be passed.
-     * @returns 
+     * @returns {object} - Import Manager Unit Object.
      */
-    es6NodeToUnit(node, oStart, oEnd) {
+    #es6NodeToUnit(node, oStart, oEnd) {
 
         let code;
         if (typeof node === "string") {
@@ -696,7 +711,14 @@ class ImportManager {
     }
 
 
-    dynamicNodeToUnit(node, importObject) {
+    /**
+     * Method to generate a unit object from an acorn
+     * node, originated from a Dynamic Import Statement.
+     * @param {object} node - Complete acorn node.
+     * @param {object} importObject - Actual import part.
+     * @returns {object} - Import Manager Unit Object.
+     */
+    #dynamicNodeToUnit(node, importObject) {
 
         const code = this.code.slice(node.start, node.end);
 
@@ -724,7 +746,14 @@ class ImportManager {
         return unit;
     }
 
-    cjsNodeToUnit(node) {
+
+    /**
+     * Method to generate a unit object from an acorn
+     * node, originated from a Common JS Import Statement.
+     * @param {object} node - Complete acorn node.
+     * @returns {object} - Import Manager Unit Object.
+     */
+    #cjsNodeToUnit(node) {
 
         const code = this.code.slice(node.start, node.end);
 
@@ -795,6 +824,7 @@ class ImportManager {
      * Selects a unit by its module name.
      * @param {string} name - Module Name. 
      * @param {string|string[]} [type] - "cjs", "dynamic", "es6" one as a string or multiple as array of strings
+     * @param {boolean} allowNull - If false the module must be found or a MatchError is thrown.
      * @returns {Object} - An explicit unit.
      */
     selectModByName(name, type, allowNull) {
@@ -870,7 +900,7 @@ class ImportManager {
 
         // finally add methods for manipulation to the unit
         const unit = units[0];
-        unit.methods = new ImportManagerUnitMethods(unit, this.es6NodeToUnit);
+        unit.methods = new ImportManagerUnitMethods(unit, this.#es6NodeToUnit);
 
         return unit;
     }
@@ -878,8 +908,9 @@ class ImportManager {
 
     /**
      * Selects a unit by its id. Should only be used
-     * for test purposes.
+     * for testing purposes.
      * @param {number} id - Unit id. 
+     * @param {boolean} allowNull - If false the module must be found or a MatchError is thrown.
      * @returns {Object} - An explicit unit.
      */
     selectModById(id, allowNull) {
@@ -915,7 +946,7 @@ class ImportManager {
 
         // add unit methods
         const unit = units[0];
-        unit.methods = new ImportManagerUnitMethods(unit, this.es6NodeToUnit);
+        unit.methods = new ImportManagerUnitMethods(unit, this.#es6NodeToUnit);
 
         return unit;
     }
@@ -927,7 +958,8 @@ class ImportManager {
      * All hashes for one file are stored in a list, with
      * the corresponding id. The id-match method can there-
      * fore be used, to find the unit.
-     * @param {string} hash - The hash string of the unit. 
+     * @param {string} hash - The hash string of the unit.
+     * @param {boolean} allowNull - If false the module must be found or a MatchError is thrown.
      * @returns {object} - An explicit unit.
      */
     selectModByHash(hash, allowNull) {
@@ -1039,10 +1071,10 @@ class ImportManager {
 
 
     /**
-     * Inserts an ES6 Import Statement to the top
+     * Inserts an Import Statement to the top
      * of the file or after the last found import
      * statement.
-     * @param {string} statement - ES6 Import Statement.
+     * @param {string} statement - Import Statement.
      * @param {number} pos - 'top' or 'bottom'
      */
     insertStatement(statement, pos, type) {
@@ -1081,12 +1113,12 @@ class ImportManager {
 
 
     /**
-     * Inserts an ES6 Import Statement before or after
+     * Inserts an Import Statement before or after
      * a given unit. Also an existing statement can be
      * replaced.
      * @param {Object} unit - Unit Object 
      * @param {string} mode - 'append'|'prepend'|'replace' 
-     * @param {string} statement - ES6 Import Statement. 
+     * @param {string} statement - Import Statement. 
      */
     insertAtUnit(unit, mode, statement) {
 
@@ -1145,8 +1177,8 @@ class ImportManager {
 
 
     /**
-     * Bold, yellow warning messages in the mould
-     * of rollup warnings. With spam protection.
+     * Warnings with spam protection. Can use internal
+     * and native rollup method.
      * @param {string} msg - Warning Message. 
      */
     warning(msg) {
@@ -1157,10 +1189,7 @@ class ImportManager {
         }
 
         this.warnSpamProtection.add(hash);
-
-        console.warn(
-            colorette.bold(colorette.yellow(`(!) (plugin ImportManager) ${msg}`))
-        );
+        this.warn(msg);
     }
 }
 
