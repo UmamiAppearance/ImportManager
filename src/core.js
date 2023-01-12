@@ -791,6 +791,29 @@ class ImportManager {
     //                ________________________              //
     //                global debugging methods              //
 
+    
+    /**
+     * Debug statements created by IM.
+     * @param {string} code - Code Snippet String.
+     * @param {Object} [target] - Target Unit Object.
+     * @param {string} [type] - Target type.
+     * @param {string} [mode] - Insert position or attach mode.
+     */
+    logCreations(code, target, type, mode) {
+        let msg = {
+            addCode: code
+        };
+        if (target) {
+            msg.mode = mode;
+            msg.targetType = target.type;
+            msg.targetUnit = target.methods.log(false);
+        } else if (type) {
+            msg.insert = mode;
+            msg.targetType = type;
+        }
+        throw new DebuggingError(msg);
+    }
+
 
     /**
      * Debugging method to stop the building process

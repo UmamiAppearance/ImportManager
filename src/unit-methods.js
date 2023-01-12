@@ -329,10 +329,13 @@ export default class ImportManagerUnitMethods {
      * Debugging method to stop the building process
      * and list this unit properties.
      */
-    log() {
+    log(error=true) {
         const unit = { ...this.unit };
         delete unit.methods;
         unit.code = [ unit.code.toString() ];
-        throw new DebuggingError(unit);
+        if (error) {
+            throw new DebuggingError(unit);
+        }
+        return unit;
     }
 }
