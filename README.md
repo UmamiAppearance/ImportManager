@@ -20,7 +20,7 @@ npm install import-manager
 
 ### Importing
 ```js
-import ImportManager from "import-manager
+import ImportManager from "import-manager"
 ```
 
 ### Initializing

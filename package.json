@@ -1,6 +1,6 @@
 {
   "name": "import-manager",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "A class to analyze and manipulate JavaScript import statements from source code files.",
   "main": "./cjs/import-manager.cjs",
   "module": "./src/core.js",
@@ -39,7 +39,7 @@
   "devDependencies": {
     "ava": "^5.1.0",
     "eslint": "^8.31.0",
-    "rollup": "^3.9.1"
+    "rollup": "^3.10.0"
   },
   "dependencies": {
     "acorn": "^8.8.1",
