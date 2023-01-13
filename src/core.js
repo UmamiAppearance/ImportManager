@@ -634,13 +634,17 @@ class ImportManager {
      * Removes a unit from the code instance.
      * The action must not be committed. 
      * @param {Object} unit - Unit Object.
+     * @returns {string} - Unit code, for further processing.
      */
     remove(unit) {
         const charAfter = this.code.slice(unit.end, unit.end+1);
         const end = (charAfter === "\n") ? unit.end + 1 : unit.end;
+        
         this.code.remove(unit.start, end);
         unit.methods.makeUntraceable();
         this.imports[unit.type].count --;
+        
+        return unit.code.toString();
     }
 
     /**
