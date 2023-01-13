@@ -4,6 +4,7 @@ var acorn = require('acorn');
 var acornWalk = require('acorn-walk');
 var MagicString = require('magic-string');
 var colorette = require('colorette');
+var os = require('os');
 
 /**
  * Custom error to tell the user, that it is
@@ -359,11 +360,14 @@ class ImportManagerUnitMethods {
      * Debugging method to stop the building process
      * and list this unit properties.
      */
-    log() {
+    log(error=true) {
         const unit = { ...this.unit };
         delete unit.methods;
         unit.code = [ unit.code.toString() ];
-        throw new DebuggingError(unit);
+        if (error) {
+            throw new DebuggingError(unit);
+        }
+        return unit;
     }
 }
 
@@ -375,7 +379,7 @@ class ImportManagerUnitMethods {
  * It handles code analysis, creates units from import
  * statements, attaches methods to the units and more.
  * 
- * @version 0.2.2
+ * @version 0.3.0
  * @author UmamiAppearance [mail@umamiappearance.eu]
  * @license MIT
  * @see https://github.com/UmamiAppearance/rollup-plugin-import-manager
@@ -597,13 +601,13 @@ class ImportManager {
                 }).body.at(0);
             } catch(e) {
                 if (e instanceof SyntaxError) {
-                    let msg = "\n\nGenerated Code Snippet\n----------------------\n";
+                    let msg = `${os.EOL}${os.EOL}Generated Code Snippet${os.EOL}----------------------${os.EOL}`;
                     let { line, column } = e.loc;
                     line --;
-                    code.toString().split("\n").forEach((l, i) => {
-                        msg += l + "\n";
+                    code.toString().split(os.EOL).forEach((l, i) => {
+                        msg += `l${os.EOL}`;
                         if (line === i) {
-                            msg += colorette.bold(" ".repeat(column) + "^\n");
+                            msg += colorette.bold(" ".repeat(column) + `^${os.EOL}`);
                         }
                     });
 
@@ -803,10 +807,10 @@ class ImportManager {
                 `ID:   ${unit.id}`,
                 `HASH: ${unit.hash}`, 
                 `NAME: ${unit.module.name}`,
-                `STATEMENT:\n${unit.code.toString()}\n`
+                `STATEMENT:${os.EOL}${unit.code.toString()}${os.EOL}`
             );
         });
-        return msgArray.join("\n") + "\n";
+        return msgArray.join(os.EOL) + os.EOL;
     }
 
 
@@ -891,13 +895,13 @@ class ImportManager {
                 typeStr = "any group";
             }
 
-            msg += `___\nUnable to locate import statement with name: '${name}' in ${typeStr}`;
+            msg += `___${os.EOL}Unable to locate import statement with name: '${name}' in ${typeStr}`;
             throw new MatchError(msg);
         }
         
         else if (units.length > 1) {
             let msg = this.#listUnits(units);
-            msg += `___\nFound multiple matches for '${name}'. If no other solution is available you may select via hash.`;
+            msg += `___${os.EOL}Found multiple matches for '${name}'. If no other solution is available you may select via hash.`;
             throw new MatchError(msg);
         }
 
@@ -943,7 +947,7 @@ class ImportManager {
                 return null;
             }
             let msg = this.#listUnits(this.imports[type].units);
-            msg += `___\nUnable to locate import statement with id: '${id}'`;
+            msg += `___${os.EOL}Unable to locate import statement with id: '${id}'`;
             throw new MatchError(msg);
         }
 
@@ -971,7 +975,7 @@ class ImportManager {
                 return null;
             }
             let msg = this.#listAllUnits(); 
-            msg += `___\nUnable to locate import statement with hash '${hash}'`;
+            msg += `___${os.EOL}Unable to locate import statement with hash '${hash}'`;
             throw new MatchError(msg);
         }
 
@@ -996,13 +1000,27 @@ class ImportManager {
      * Removes a unit from the code instance.
      * The action must not be committed. 
      * @param {Object} unit - Unit Object.
+     * @returns {string} - Unit code, for further processing.
      */
     remove(unit) {
-        const charAfter = this.code.slice(unit.end, unit.end+1);
-        const end = (charAfter === "\n") ? unit.end + 1 : unit.end;
+        let charAfter = this.code.slice(unit.end, unit.end+1);
+        let end = unit.end;
+        
+        if (charAfter === "\r") {
+            end++;
+            charAfter = this.code.slice(end, end+1);
+        }
+        if (charAfter === "\n") {
+            end++;
+        }
+        
+        const code = this.code.slice(unit.start, end);
+
         this.code.remove(unit.start, end);
         unit.methods.makeUntraceable();
         this.imports[unit.type].count --;
+        
+        return code;
     }
 
     /**
@@ -1028,7 +1046,7 @@ class ImportManager {
      */
     makeCJSStatement(module, declarator, varname) {
         const declaration = this.#genDeclaration(declarator, varname);
-        return `${declaration} = require("${module}");\n`;
+        return `${declaration} = require("${module}");${os.EOL}`;
     }
 
     /**
@@ -1038,7 +1056,7 @@ class ImportManager {
      */
     makeDynamicStatement(module, declarator, varname) {
         const declaration = this.#genDeclaration(declarator, varname);
-        return `${declaration} = await import("${module}");\n`;
+        return `${declaration} = await import("${module}");${os.EOL}`;
     }
     
 
@@ -1069,7 +1087,7 @@ class ImportManager {
             memberPart += " from ";
         }
 
-        return `import ${memberPart}'${module}';\n`;
+        return `import ${memberPart}'${module}';${os.EOL}`;
     }
 
 
@@ -1099,6 +1117,9 @@ class ImportManager {
                 nextChar = null;
             }
 
+            if (nextChar === "\r") {
+                index ++;
+            }
             if (nextChar === "\n") {
                 index ++;
             }
@@ -1128,6 +1149,9 @@ class ImportManager {
         let index;
         if (mode === "append") {
             index = unit.end;
+            if (this.code.slice(index, index+1) === "\r") {
+                index ++;
+            }
             if (this.code.slice(index, index+1) === "\n") {
                 index ++;
             }
@@ -1152,6 +1176,29 @@ class ImportManager {
 
     //                ________________________              //
     //                global debugging methods              //
+
+    
+    /**
+     * Debug statements created by IM.
+     * @param {string} code - Code Snippet String.
+     * @param {Object} [target] - Target Unit Object.
+     * @param {string} [type] - Target type.
+     * @param {string} [mode] - Insert position or attach mode.
+     */
+    logCreations(code, target, type, mode) {
+        let msg = {
+            addCode: code
+        };
+        if (target) {
+            msg.mode = mode;
+            msg.targetType = target.type;
+            msg.targetUnit = target.methods.log(false);
+        } else if (type) {
+            msg.insert = mode;
+            msg.targetType = type;
+        }
+        throw new DebuggingError(msg);
+    }
 
 
     /**
