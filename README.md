@@ -49,7 +49,7 @@ Methods, callable from manager instance.
 Analyzes the source and stores all import statements as unit objects in the [imports object](#imports-object).
 
 ##### `selectModByName(name, type, allowNull)`
-Searches `this.imports` for the given module _name_. If _type_ is provided (`cjs`/`dynamic`/`es6`), it only searches for the module in that category. If _allowNull_ `false` the module must be found or a [`MatchError`](#matcherror
+Searches `this.imports` for the given module _name_ (`String` | `RegExp`). If _type_ is provided (`cjs`/`dynamic`/`es6`), it only searches for the module in that category. If _allowNull_ `false` the module must be found or a [`MatchError`](#matcherror
 ) is thrown.
 
 ##### `selectModById(id, allowNull)`
@@ -99,6 +99,8 @@ Methods callable from a unit object.
 
 ##### `renameModule(name, modType)`
 Changes the _name_ -> module (path). _modType_ can be `"string"` which adds quotation marks around _name_ or `"raw"`, which doesn't and can be used to pass variables if valid for the import type.
+
+Note: name can alternatively be (moduleSourceRaw: string) => string where moduleSourceRaw is the module's source code including quotes if _modType_ is `"string"`.
 
 ##### `addDefaultMembers(names)`
 _names_ is an array of strings (even for the most common case of a single member) of default members to add to the unit. _[es6 only]_
