@@ -48,21 +48,26 @@ export default class ImportManagerUnitMethods {
 
     /**
      * Changes the module part of a import statement.
-     * @param {string} name - The new module part/path.
+     * @param {string|(moduleSourceRaw: string) => string} name - The new module part/path or a function
+     * that receives the module's raw source code (including quotes if present) and returns the new module part/path.
      * @param {*} modType - Module type (literal|raw).
      */
     renameModule(name, modType) {
-        if (modType === "string") {
-            if (!this.unit.module.quotes) {
-                this.unit.module.quotes = "\"";
+        const isNameAFn = typeof name === "function";
+
+        if (!isNameAFn) {
+            if (modType === "string") {
+                if (!this.unit.module.quotes) {
+                    this.unit.module.quotes = "\"";
+                }
+                const q = this.unit.module.quotes;
+                name = q + name + q;
+            } else if (modType !== "raw") {
+                throw new TypeError(`Unknown modType '${modType}'. Valid types are 'string' and 'raw'.`);
             }
-            const q = this.unit.module.quotes;
-            name = q + name + q;
-        } else if (modType !== "raw") {
-            throw new TypeError(`Unknown modType '${modType}'. Valid types are 'string' and 'raw'.`);
         }
         
-        this.unit.code.overwrite(this.unit.module.start, this.unit.module.end, name);
+        this.unit.code.overwrite(this.unit.module.start, this.unit.module.end, isNameAFn ? name(this.unit.module.sourceRaw) : name);
 
         if (this.unit.type === "es6") {
             this.updateUnit();

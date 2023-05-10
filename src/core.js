@@ -335,7 +335,8 @@ class ImportManager {
             start: node.source.start - node.start,
             end: node.source.end - node.start,
             type: "string",
-            quotes: node.source.raw.at(0)
+            quotes: node.source.raw.at(0),
+            sourceRaw: node.source.raw
         };
 
         
@@ -367,7 +368,8 @@ class ImportManager {
         const module = {
             name: importObject.source.value.split("/").at(-1) || "N/A",
             start: importObject.source.start - node.start,
-            end: importObject.source.end - node.start
+            end: importObject.source.end - node.start,
+            sourceRaw: importObject.source.raw
         };
 
         if (importObject.source.type === "Literal") {
@@ -403,7 +405,8 @@ class ImportManager {
         const module = {
             name: modulePart.value.split("/").at(-1) || "N/A",
             start: modulePart.start - node.start,
-            end: modulePart.end - node.start
+            end: modulePart.end - node.start,
+            sourceRaw: modulePart.raw
         };
 
         if (modulePart.type === "Literal") {
@@ -464,7 +467,7 @@ class ImportManager {
     
     /**
      * Selects a unit by its module name.
-     * @param {string} name - Module Name. 
+     * @param {string|RegExp} name - Module Name. 
      * @param {string|string[]} [type] - "cjs", "dynamic", "es6" one as a string or multiple as array of strings
      * @param {boolean} allowNull - If false the module must be found or a MatchError is thrown.
      * @returns {Object} - An explicit unit.
@@ -502,7 +505,7 @@ class ImportManager {
 
         // filter for unit name
         const units = unitList.filter(unit => {
-            const match = unit.module.name.indexOf(name) > -1;
+            const match = name instanceof RegExp ? unit.module.name !== undefined && name.test(unit.module.name) : unit.module.name.indexOf(name) > -1;
 
             // ignore deleted units
             if (match && unit.module.name.match(/^\(deleted\)/)) {
