@@ -48,9 +48,10 @@ Methods, callable from manager instance.
 ##### `analyze()`
 Analyzes the source and stores all import statements as unit objects in the [imports object](#imports-object).
 
-##### `selectModByName(name, type, allowNull)`
-Searches `this.imports` for the given module _name_ (`String` | `RegExp`). If _type_ is provided (`cjs`/`dynamic`/`es6`), it only searches for the module in that category. If _allowNull_ `false` the module must be found or a [`MatchError`](#matcherror
-) is thrown.
+##### `selectModByName(name, type, allowNull, rawName=false)`
+Searches `this.imports` for the given module _name_ (`String`|`RegExp`). If _type_ is provided (`cjs`/`dynamic`/`es6`), it only searches for the module in that category. If _allowNull_ `false` the module must be found or a [`MatchError`](#matcherror
+) is thrown.  
+By setting `rawName` to true the name is searched in the whole raw module-name string. For the statement `import foo from "/path/to/bar.js"` the module name will be `bar.js` while the rawName is `"/path/to/bar.js"`. So it is possible to search for the whole path if it is necessary.
 
 ##### `selectModById(id, allowNull)`
 Searches `this.imports` for the given module _id_. If _allowNull_ `false` the module must be found or a [`MatchError`](#matcherror

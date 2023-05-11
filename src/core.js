@@ -336,9 +336,8 @@ class ImportManager {
             end: node.source.end - node.start,
             type: "string",
             quotes: node.source.raw.at(0),
-            sourceRaw: node.source.raw
+            rawName: node.source.raw
         };
-
         
         const unit = {
             code: new MagicString(code),
@@ -369,7 +368,7 @@ class ImportManager {
             name: importObject.source.value.split("/").at(-1) || "N/A",
             start: importObject.source.start - node.start,
             end: importObject.source.end - node.start,
-            sourceRaw: importObject.source.raw
+            rawName: importObject.source.raw
         };
 
         if (importObject.source.type === "Literal") {
@@ -406,7 +405,7 @@ class ImportManager {
             name: modulePart.value.split("/").at(-1) || "N/A",
             start: modulePart.start - node.start,
             end: modulePart.end - node.start,
-            sourceRaw: modulePart.raw
+            rawName: modulePart.raw
         };
 
         if (modulePart.type === "Literal") {
@@ -467,14 +466,15 @@ class ImportManager {
     
     /**
      * Selects a unit by its module name.
-     * @param {string|RegExp} name - Module Name. 
-     * @param {string|string[]} [type] - "cjs", "dynamic", "es6" one as a string or multiple as array of strings
+     * @param {string|Object} name - Module name as a string or a RegExp object. 
+     * @param {string|string[]} [type] - Pass the strings "cjs", "dynamic", or "es6". Multiple types can be passed as as an array of those strings
      * @param {boolean} allowNull - If false the module must be found or a MatchError is thrown.
+     * @param {boolean} [rawName=false] - If true the name is searched in the full raw module part (including quotes if present).
      * @returns {Object} - An explicit unit.
      */
-    selectModByName(name, type, allowNull) {
+    selectModByName(name, type, allowNull, rawName=false) {
         if (!name) {
-            throw new TypeError("The name must be provided");
+            throw new TypeError("Pass a name as a string or a RegExp object for selecting a module by name");
         }
 
         let unitList = [];
@@ -505,10 +505,15 @@ class ImportManager {
 
         // filter for unit name
         const units = unitList.filter(unit => {
-            const match = name instanceof RegExp ? unit.module.name !== undefined && name.test(unit.module.name) : unit.module.name.indexOf(name) > -1;
+
+            const nameLookup = rawName ? unit.module.rawName : unit.module.name;
+
+            const match = name instanceof RegExp 
+                ? name.test(nameLookup)
+                : nameLookup.indexOf(name) > -1;
 
             // ignore deleted units
-            if (match && unit.module.name.match(/^\(deleted\)/)) {
+            if (match && (/^\(deleted\)/).test(unit.module.name)) {
                 return false;
             }
 
@@ -539,7 +544,7 @@ class ImportManager {
         
         else if (units.length > 1) {
             let msg = this.#listUnits(units);
-            msg += `___${EOL}Found multiple matches for '${name}'. If no other solution is available you may select via hash.`;
+            msg += `___${EOL}Found multiple matches for '${name}'. Try matching via 'rawName'. If no other solution is available you may select via 'hash'.`;
             throw new MatchError(msg);
         }
 
