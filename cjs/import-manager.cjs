@@ -74,31 +74,35 @@ class ImportManagerUnitMethods {
         if (this.unit.type !== "es6") {
             throw new Error("This method is only available for ES6 imports.");
         }
-    }
-
+    }  
 
     /**
      * Changes the module part of a import statement.
-     * @param {string|(moduleSourceRaw: string) => string} name - The new module part/path or a function
-     * that receives the module's raw source code (including quotes if present) and returns the new module part/path.
-     * @param {*} modType - Module type (literal|raw).
+     * @param {string|function} name - The new module part/path or a function that receives the module's full (raw) name/path - including quotes if present - which must return the new module part/path.
+     * @param {string} modType - Module type (string|raw).
      */
     renameModule(name, modType) {
-        const isNameAFn = typeof name === "function";
 
-        if (!isNameAFn) {
-            if (modType === "string") {
-                if (!this.unit.module.quotes) {
-                    this.unit.module.quotes = "\"";
-                }
-                const q = this.unit.module.quotes;
-                name = q + name + q;
-            } else if (modType !== "raw") {
-                throw new TypeError(`Unknown modType '${modType}'. Valid types are 'string' and 'raw'.`);
+        if (typeof name === "function") {
+            name = name(this.unit.module.rawName);
+            if (typeof name !== "string") {
+                throw new TypeError("If a function is provided the output must be a string.");
             }
         }
+
+        else if (modType === "string") {
+            if (!this.unit.module.quotes) {
+                this.unit.module.quotes = "\"";
+            }
+            const q = this.unit.module.quotes;
+            name = q + name + q;
+        }
         
-        this.unit.code.overwrite(this.unit.module.start, this.unit.module.end, isNameAFn ? name(this.unit.module.sourceRaw) : name);
+        else if (modType !== "raw") {
+            throw new TypeError(`Unknown modType '${modType}'. Valid types are 'string' and 'raw'.`);
+        }
+        
+        this.unit.code.overwrite(this.unit.module.start, this.unit.module.end, name);
 
         if (this.unit.type === "es6") {
             this.updateUnit();
@@ -384,11 +388,12 @@ class ImportManagerUnitMethods {
  * It handles code analysis, creates units from import
  * statements, attaches methods to the units and more.
  * 
- * @version 0.3.3
+ * @version 0.4.1
  * @author UmamiAppearance [mail@umamiappearance.eu]
  * @license MIT
  * @see https://github.com/UmamiAppearance/rollup-plugin-import-manager
  */
+
 
 
 class ImportManager {
@@ -706,9 +711,8 @@ class ImportManager {
             end: node.source.end - node.start,
             type: "string",
             quotes: node.source.raw.at(0),
-            sourceRaw: node.source.raw
+            rawName: node.source.raw
         };
-
         
         const unit = {
             code: new MagicString(code),
@@ -739,7 +743,7 @@ class ImportManager {
             name: importObject.source.value.split("/").at(-1) || "N/A",
             start: importObject.source.start - node.start,
             end: importObject.source.end - node.start,
-            sourceRaw: importObject.source.raw
+            rawName: importObject.source.raw
         };
 
         if (importObject.source.type === "Literal") {
@@ -776,7 +780,7 @@ class ImportManager {
             name: modulePart.value.split("/").at(-1) || "N/A",
             start: modulePart.start - node.start,
             end: modulePart.end - node.start,
-            sourceRaw: modulePart.raw
+            rawName: modulePart.raw
         };
 
         if (modulePart.type === "Literal") {
@@ -837,14 +841,15 @@ class ImportManager {
     
     /**
      * Selects a unit by its module name.
-     * @param {string|RegExp} name - Module Name. 
-     * @param {string|string[]} [type] - "cjs", "dynamic", "es6" one as a string or multiple as array of strings
+     * @param {string|Object} name - Module name as a string or a RegExp object. 
+     * @param {string|string[]} [type] - Pass the strings "cjs", "dynamic", or "es6". Multiple types can be passed as as an array of those strings
      * @param {boolean} allowNull - If false the module must be found or a MatchError is thrown.
+     * @param {boolean} [rawName=false] - If true the name is searched in the full raw module part (including quotes if present).
      * @returns {Object} - An explicit unit.
      */
-    selectModByName(name, type, allowNull) {
+    selectModByName(name, type, allowNull, rawName=false) {
         if (!name) {
-            throw new TypeError("The name must be provided");
+            throw new TypeError("Pass a name as a string or a RegExp object for selecting a module by name");
         }
 
         let unitList = [];
@@ -875,10 +880,15 @@ class ImportManager {
 
         // filter for unit name
         const units = unitList.filter(unit => {
-            const match = name instanceof RegExp ? unit.module.name !== undefined && name.test(unit.module.name) : unit.module.name.indexOf(name) > -1;
+
+            const nameLookup = rawName ? unit.module.rawName : unit.module.name;
+
+            const match = name instanceof RegExp 
+                ? name.test(nameLookup)
+                : nameLookup.indexOf(name) > -1;
 
             // ignore deleted units
-            if (match && unit.module.name.match(/^\(deleted\)/)) {
+            if (match && (/^\(deleted\)/).test(unit.module.name)) {
                 return false;
             }
 
@@ -909,7 +919,7 @@ class ImportManager {
         
         else if (units.length > 1) {
             let msg = this.#listUnits(units);
-            msg += `___${os.EOL}Found multiple matches for '${name}'. If no other solution is available you may select via hash.`;
+            msg += `___${os.EOL}Found multiple matches for '${name}'. Try matching via 'rawName'. If no other solution is available you may select via 'hash'.`;
             throw new MatchError(msg);
         }
 
