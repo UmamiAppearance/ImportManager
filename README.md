@@ -99,9 +99,10 @@ All manipulation done via a [unit method](#unit-methods) is made on the code sli
 Methods callable from a unit object.
 
 ##### `renameModule(name, modType)`
-Changes the _name_ -> module (path). _modType_ can be `"string"` which adds quotation marks around _name_ or `"raw"`, which doesn't and can be used to pass variables if valid for the import type.
+Changes the _name_ -> module (path). _modType_ can either be `"string"` which adds quotation marks around _name_ or `"raw"`, which doesn't, and can be used to pass variables if valid for the import type.
 
-Note: name can alternatively be (moduleSourceRaw: string) => string where moduleSourceRaw is the module's source code including quotes if _modType_ is `"string"`.
+Name can also be a function which passes the original raw module-name (including quotes if present) as a first parameter and must return a raw module name as a string. (eg. `rawName => rawName.replace("foo", "bar")`)
+
 
 ##### `addDefaultMembers(names)`
 _names_ is an array of strings (even for the most common case of a single member) of default members to add to the unit. _[es6 only]_
@@ -128,7 +129,7 @@ Method to call after a unit was completely removed or replaced, to prevent match
 Debugging method to stop the building process and list the unit properties.
 
 ##### `updateUnit()`
-If multiple changes should be performed on a `es6` unit, this method should be called after a change. If called the unit gets generated again with the updates code.
+If multiple changes should be performed on a `es6` unit, this method should be called after a change. If called the unit gets generated again with the updated code.
 
 
 ### Errors
