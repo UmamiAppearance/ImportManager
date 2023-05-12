@@ -43,22 +43,31 @@ export default class ImportManagerUnitMethods {
         if (this.unit.type !== "es6") {
             throw new Error("This method is only available for ES6 imports.");
         }
-    }
-
+    }  
 
     /**
      * Changes the module part of a import statement.
-     * @param {string} name - The new module part/path.
-     * @param {*} modType - Module type (literal|raw).
+     * @param {string|function} name - The new module part/path or a function that receives the module's full (raw) name/path - including quotes if present - which must return the new module part/path.
+     * @param {string} modType - Module type (string|raw).
      */
     renameModule(name, modType) {
-        if (modType === "string") {
+
+        if (typeof name === "function") {
+            name = name(this.unit.module.rawName);
+            if (typeof name !== "string") {
+                throw new TypeError("If a function is provided the output must be a string.");
+            }
+        }
+
+        else if (modType === "string") {
             if (!this.unit.module.quotes) {
                 this.unit.module.quotes = "\"";
             }
             const q = this.unit.module.quotes;
             name = q + name + q;
-        } else if (modType !== "raw") {
+        }
+        
+        else if (modType !== "raw") {
             throw new TypeError(`Unknown modType '${modType}'. Valid types are 'string' and 'raw'.`);
         }
         

@@ -48,17 +48,15 @@ Methods, callable from manager instance.
 ##### `analyze()`
 Analyzes the source and stores all import statements as unit objects in the [imports object](#imports-object).
 
-##### `selectModByName(name, type, allowNull)`
-Searches `this.imports` for the given module _name_. If _type_ is provided (`cjs`/`dynamic`/`es6`), it only searches for the module in that category. If _allowNull_ `false` the module must be found or a [`MatchError`](#matcherror
-) is thrown.
+##### `selectModByName(name, type, allowNull, rawName=false)`
+Searches `this.imports` for the given module _name_ (`String`|`RegExp`). If _type_ is provided (`cjs`/`dynamic`/`es6`), it only searches for the module in that category. If _allowNull_ is set to `false` the module must be found or a [`MatchError`](#matcherror) is thrown.  
+By setting `rawName` to true the name is searched in the whole raw module-name string. For the statement `import foo from "/path/to/bar.js"` the module name will be `bar.js` while the raw name is `"/path/to/bar.js"`. It is therefore possible to search for the whole path if it is necessary.
 
 ##### `selectModById(id, allowNull)`
-Searches `this.imports` for the given module _id_. If _allowNull_ `false` the module must be found or a [`MatchError`](#matcherror
-) is thrown.
+Searches `this.imports` for the given module _id_. If _allowNull_ `false` the module must be found or a [`MatchError`](#matcherror) is thrown.
 
 ##### `selectModByHash(hash, allowNull)`
-Searches `this.imports` for the given module _hash_. If _allowNull_ `false` the module must be found or a [`MatchError`](#matcherror
-) is thrown.
+Searches `this.imports` for the given module _hash_. If _allowNull_ `false` the module must be found or a [`MatchError`](#matcherror) is thrown.
 
 ##### `makeCJSStatement(module, declarator, varname)`
 Generates a CJS Import Statement String from the _module_, _declarator_ (`const`/`let`/`var`/`global`) and the _varname_.  
@@ -98,7 +96,10 @@ All manipulation done via a [unit method](#unit-methods) is made on the code sli
 Methods callable from a unit object.
 
 ##### `renameModule(name, modType)`
-Changes the _name_ -> module (path). _modType_ can be `"string"` which adds quotation marks around _name_ or `"raw"`, which doesn't and can be used to pass variables if valid for the import type.
+Changes the _name_ -> module (path). _modType_ can either be `"string"` which adds quotation marks around _name_ or `"raw"`, which doesn't, and can be used to pass variables if valid for the import type.
+
+Name can also be a function which passes the original raw module-name (including quotes if present) as a first parameter and must return a raw module name as a string. (eg. `rawName => rawName.replace("foo", "bar")`)
+
 
 ##### `addDefaultMembers(names)`
 _names_ is an array of strings (even for the most common case of a single member) of default members to add to the unit. _[es6 only]_
@@ -107,10 +108,10 @@ _names_ is an array of strings (even for the most common case of a single member
 _names_ is an array of strings of members to add to the unit. _[es6 only]_
 
 ##### `removeMember(memberType, name)`
-Removes a singular `defaultMember` if _memberType_ is set to it or a `member` with the specified _name_. _[es6 only]_
+Removes a singular `defaultMember`/`member` (distinguished by _memberType_) with the specified _name_. _[es6 only]_
 
 ##### `removeMembers(membersType)`
-Removes the group of `defaultMember(s)` if _memberType_ is set to it or all  `member(s)`. _[es6 only]_
+Removes all `defaultMember(s)` or `member(s)` (distinguished by _memberType_). _[es6 only]_
 
 ##### `renameMember(memberType, name, newName, keepAlias)`
 Renames a singular member of _memberType_ `defaultMember`/`member` matching the given _name_ to a _newName_. It is possible to _keepAlias_ if it should not be changed. _[es6 only]_
@@ -125,7 +126,7 @@ Method to call after a unit was completely removed or replaced, to prevent match
 Debugging method to stop the building process and list the unit properties.
 
 ##### `updateUnit()`
-If multiple changes should be performed on a `es6` unit, this method should be called after a change. If called the unit gets generated again with the updates code.
+If multiple changes should be performed on a `es6` unit, this method should be called after a change. If called the unit gets generated again with the updated code.
 
 
 ### Errors
