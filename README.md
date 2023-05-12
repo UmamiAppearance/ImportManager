@@ -111,10 +111,10 @@ _names_ is an array of strings (even for the most common case of a single member
 _names_ is an array of strings of members to add to the unit. _[es6 only]_
 
 ##### `removeMember(memberType, name)`
-Removes a singular `defaultMember` if _memberType_ is set to it or a `member` with the specified _name_. _[es6 only]_
+Removes a singular `defaultMember`/`member` (distinguished by _memberType_) with the specified _name_. _[es6 only]_
 
 ##### `removeMembers(membersType)`
-Removes the group of `defaultMember(s)` if _memberType_ is set to it or all  `member(s)`. _[es6 only]_
+Removes all `defaultMember(s)` or `member(s)` (distinguished by _memberType_). _[es6 only]_
 
 ##### `renameMember(memberType, name, newName, keepAlias)`
 Renames a singular member of _memberType_ `defaultMember`/`member` matching the given _name_ to a _newName_. It is possible to _keepAlias_ if it should not be changed. _[es6 only]_
