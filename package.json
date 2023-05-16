@@ -1,6 +1,6 @@
 {
   "name": "import-manager",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "A class to analyze and manipulate JavaScript import statements from source code files.",
   "main": "./cjs/import-manager.cjs",
   "module": "./src/core.js",
@@ -13,7 +13,8 @@
     "build:cjs": "rollup ./src/core.js --file ./cjs/import-manager.cjs --format cjs -m",
     "lint": "eslint ./src/*",
     "lint:fix": "eslint ./src/* --fix",
-    "test": "ava"
+    "test": "remembrance && ava",
+    "test:dev": "ava"
   },
   "repository": {
     "type": "git",
@@ -39,7 +40,8 @@
   "devDependencies": {
     "ava": "^5.2.0",
     "eslint": "^8.40.0",
-    "rollup": "^3.21.6"
+    "remembrance": "^0.1.0",
+    "rollup": "^3.21.8"
   },
   "dependencies": {
     "acorn": "^8.8.2",
