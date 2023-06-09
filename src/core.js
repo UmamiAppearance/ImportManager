@@ -398,7 +398,7 @@ class ImportManager {
      * @returns {object} - Import Manager Unit Object.
      */
     #cjsNodeToUnit(node) {
-        if (!node || !node.declarations || node.declarations.length >= 0) return;
+        if (!node || !node.declarations) return;
 
         const code = this.code.slice(node.start, node.end);
 
