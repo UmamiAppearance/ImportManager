@@ -145,6 +145,7 @@ class ImportManager {
                     
                     else if (part.type === "Identifier" && part.name === "require") {
                         const unit = this.#cjsNodeToUnit(node);
+                        if (!unit) return;
                         unit.id = cjsId ++;
                         unit.index = cjsIndex ++;
                         unit.hash = this.#makeHash(unit);
@@ -397,6 +398,7 @@ class ImportManager {
      * @returns {object} - Import Manager Unit Object.
      */
     #cjsNodeToUnit(node) {
+        if (!node || !node.declarations || node.declarations.length >= 0) return;
 
         const code = this.code.slice(node.start, node.end);
 
