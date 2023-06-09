@@ -122,6 +122,8 @@ class ImportManager {
 
             if (node.type === "ImportDeclaration") {
                 const unit = this.#es6NodeToUnit(node);
+                if (!unit) return; // TODO: Add warning message
+                
                 unit.id = es6Id ++;
                 unit.index = es6Index ++;
                 unit.hash = this.#makeHash(unit);
@@ -136,6 +138,8 @@ class ImportManager {
 
                     if (part.type === "ImportExpression") {
                         const unit = this.#dynamicNodeToUnit(node, part);
+                        if (!unit) return; // TODO: Add warning message
+                        
                         unit.id = dynamicId ++;
                         unit.index = dynamicIndex ++;
                         unit.hash = this.#makeHash(unit);
@@ -145,7 +149,8 @@ class ImportManager {
                     
                     else if (part.type === "Identifier" && part.name === "require") {
                         const unit = this.#cjsNodeToUnit(node);
-                        if (!unit) return;
+                        if (!unit) return; // TODO: Add warning message
+                        
                         unit.id = cjsId ++;
                         unit.index = cjsIndex ++;
                         unit.hash = this.#makeHash(unit);
@@ -226,6 +231,7 @@ class ImportManager {
      * @returns {object} - Import Manager Unit Object.
      */
     #es6NodeToUnit(node, oStart, oEnd) {
+        if (!node) return;
 
         let code;
         if (typeof node === "string") {
@@ -362,6 +368,7 @@ class ImportManager {
      * @returns {object} - Import Manager Unit Object.
      */
     #dynamicNodeToUnit(node, importObject) {
+        if (!node) return;
 
         const code = this.code.slice(node.start, node.end);
 
