@@ -21,6 +21,7 @@ import { bold, yellow } from "colorette";
 import { EOL } from "os";
 
 
+
 class ImportManager {
 
     /**
@@ -122,7 +123,10 @@ class ImportManager {
 
             if (node.type === "ImportDeclaration") {
                 const unit = this.#es6NodeToUnit(node);
-                if (!unit) return; // TODO: Add warning message
+                if (!unit) {
+                    this.#unitCreationFailedWarning(node);
+                    return;
+                }
                 
                 unit.id = es6Id ++;
                 unit.index = es6Index ++;
@@ -138,7 +142,10 @@ class ImportManager {
 
                     if (part.type === "ImportExpression") {
                         const unit = this.#dynamicNodeToUnit(node, part);
-                        if (!unit) return; // TODO: Add warning message
+                        if (!unit) {
+                            this.#unitCreationFailedWarning(node);
+                            return;
+                        }
                         
                         unit.id = dynamicId ++;
                         unit.index = dynamicIndex ++;
@@ -149,7 +156,10 @@ class ImportManager {
                     
                     else if (part.type === "Identifier" && part.name === "require") {
                         const unit = this.#cjsNodeToUnit(node);
-                        if (!unit) return; // TODO: Add warning message
+                        if (!unit) {
+                            this.#unitCreationFailedWarning(node);
+                            return;
+                        }
                         
                         unit.id = cjsId ++;
                         unit.index = cjsIndex ++;
@@ -892,6 +902,13 @@ class ImportManager {
 
         this.warnSpamProtection.add(hash);
         this.warn(msg);
+    }
+
+
+    #unitCreationFailedWarning(node) {
+        const codeSnippet = this.code.slice(node.start, node.end);
+        const message = `Could not create a unit from code snippet:${EOL}---${EOL}${codeSnippet}${EOL}---${EOL}If the related code is correct, this might be a bug. You can report this on:${EOL}https://github.com/UmamiAppearance/ImportManager/issues${EOL}`; 
+        this.warn(message);
     }
 }
 
