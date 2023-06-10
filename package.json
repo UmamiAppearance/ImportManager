@@ -1,6 +1,6 @@
 {
   "name": "import-manager",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "description": "A class to analyze and manipulate JavaScript import statements from source code files.",
   "main": "./cjs/import-manager.cjs",
   "module": "./src/core.js",
@@ -38,10 +38,10 @@
   },
   "homepage": "https://github.com/UmamiAppearance/ImportManager#readme",
   "devDependencies": {
-    "ava": "^5.2.0",
-    "eslint": "^8.40.0",
-    "remembrance": "^0.1.0",
-    "rollup": "^3.21.8"
+    "ava": "^5.3.0",
+    "eslint": "^8.42.0",
+    "remembrance": "^0.3.0",
+    "rollup": "^3.24.0"
   },
   "dependencies": {
     "acorn": "^8.8.2",
