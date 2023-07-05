@@ -6,7 +6,7 @@
  * It handles code analysis, creates units from import
  * statements, attaches methods to the units and more.
  * 
- * @version 0.4.3
+ * @version 0.4.4
  * @author UmamiAppearance [mail@umamiappearance.eu]
  * @license MIT
  * @see https://github.com/UmamiAppearance/rollup-plugin-import-manager
